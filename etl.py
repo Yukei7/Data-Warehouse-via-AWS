@@ -8,7 +8,6 @@ def load_staging_tables(cur, conn):
         cur.execute(query)
         conn.commit()
 
-
 def insert_tables(cur, conn):
     for query in insert_table_queries:
         cur.execute(query)
@@ -23,8 +22,10 @@ def main():
     cur = conn.cursor()
     
     load_staging_tables(cur, conn)
+    print("Successfully copy data from S3 database into staging tables!")
     insert_tables(cur, conn)
-
+    print("Successfully insert data into tables!")
+    
     conn.close()
 
 

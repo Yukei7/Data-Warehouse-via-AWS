@@ -120,7 +120,8 @@ weekday INT NOT NULL);
 staging_events_copy = ("""
 COPY staging_events_table FROM '{}'
 IAM_ROLE '{}'
-FORMAT AS json '{}'
+COMPUPDATE OFF STATUPDATE OFF
+FORMAT AS JSON '{}'
 TIMEFORMAT AS 'epochmillisecs'
 REGION 'us-west-2';
 """).format(config['S3']['LOG_DATA'], 
@@ -130,7 +131,8 @@ REGION 'us-west-2';
 staging_songs_copy = ("""
 COPY staging_songs_table FROM '{}'
 IAM_ROLE '{}'
-FORMAT AS json 'auto'
+COMPUPDATE OFF STATUPDATE OFF
+JSON 'auto'
 TIMEFORMAT AS 'epochmillisecs'
 REGION 'us-west-2';
 """).format(config['S3']['SONG_DATA'],
@@ -162,7 +164,7 @@ INSERT INTO users
 (user_id, first_name, last_name, gender, level)
     SELECT DISTINCT
         userID, firstName, lastName, gender, level
-    FROM staging_events
+    FROM staging_events_table
     WHERE page='NextSong';
 """)
 
@@ -171,7 +173,7 @@ INSERT INTO songs
 (song_id, title, artist_id, year, duration)
     SELECT DISTINCT
         song_id, title, artist_id, year, duration
-    FROM staging_songs
+    FROM staging_songs_table
 """)
 
 artist_table_insert = ("""
@@ -201,7 +203,7 @@ INSERT INTO time
         EXTRACT(MONTH FROM ts) AS month,
         EXTRACT(YEAR FROM ts) AS year,
         EXTRACT(WEEKDAY FROM ts) AS weekday
-    FROM staging_events
+    FROM staging_events_table
     WHERE page = 'NextSong';
 """)
 
